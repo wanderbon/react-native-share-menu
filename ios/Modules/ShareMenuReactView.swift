@@ -93,6 +93,7 @@ public class ShareMenuReactView: NSObject {
     }
 
     func extractDataFromContext(context: NSExtensionContext, withCallback callback: @escaping (String?, String?, NSException?) -> Void) {
+        
         let item:NSExtensionItem! = context.inputItems.first as? NSExtensionItem
         let attachments:[AnyObject]! = item.attachments
 
@@ -120,8 +121,9 @@ public class ShareMenuReactView: NSObject {
         if (urlProvider != nil) {
             urlProvider.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (item, error) in
                 let url: URL! = item as? URL
-
-                callback(url.absoluteString, "text/plain", nil)
+                let mimeType = self.extractMimeType(from: url) as String;
+                
+                callback(url.absoluteString, mimeType.isEmpty ? "text/plain" : mimeType, nil)
             }
         } else if (imageProvider != nil) {
             imageProvider.loadItem(forTypeIdentifier: kUTTypeImage as String, options: nil) { (item, error) in
