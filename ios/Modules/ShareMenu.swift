@@ -65,6 +65,7 @@ class ShareMenu: RCTEventEmitter {
         application app: UIApplication,
         openUrl url: URL,
         options: [UIApplication.OpenURLOptionsKey : Any]) {
+        
         if _targetUrlScheme == nil {
             guard let bundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [NSDictionary] else {
                 print("Error: \(NO_URL_TYPES_ERROR_MESSAGE)")
@@ -88,9 +89,9 @@ class ShareMenu: RCTEventEmitter {
             print("Error: \(NO_APP_GROUP_ERROR)")
             return
         }
-
+        
         let extraData = userDefaults.object(forKey: USER_DEFAULTS_EXTRA_DATA_KEY) as? [String:Any]
-
+        
         if let data = userDefaults.object(forKey: USER_DEFAULTS_KEY) as? [String:String] {
             sharedData = data
             dispatchEvent(with: data, and: extraData)
@@ -123,6 +124,6 @@ class ShareMenu: RCTEventEmitter {
             finalData[EXTRA_DATA_KEY] = extraData
         }
         
-        sendEvent(withName: NEW_SHARE_EVENT, body: finalData)
+        self.sendEvent(withName: NEW_SHARE_EVENT, body: finalData)
     }
 }

@@ -145,7 +145,10 @@ class ShareViewController: SLComposeServiceViewController {
         return
       }
       
-      userDefaults.set([DATA_KEY: url.absoluteString, MIME_TYPE_KEY: "text/plain"],
+      let rawMimeType = url.extractMimeType();
+      let mimeType = rawMimeType.isEmpty ? "text/plain" : rawMimeType;
+      
+      userDefaults.set([DATA_KEY: url.absoluteString, MIME_TYPE_KEY: mimeType],
                        forKey: USER_DEFAULTS_KEY)
       userDefaults.synchronize()
       
