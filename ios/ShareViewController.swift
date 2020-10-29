@@ -19,24 +19,6 @@ class ShareViewController: SLComposeServiceViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    textView.isUserInteractionEnabled = false
-    textView.textColor = UIColor(white: 0.5, alpha: 1)
-    textView.tintColor = UIColor.clear
-    
-    getIsImage { [self] (isImage: Bool) in
-      if(isImage) {
-        self.textView.isHidden = true
-      } else {
-        getUrl { (url: URL?) in
-          if let url = url {
-            self.textView.text = "\(url)"
-          }
-        }
-      }
-    }
-
-    textView.isEditable = false;
-    
     if let hostAppId = Bundle.main.object(forInfoDictionaryKey: HOST_APP_IDENTIFIER_INFO_PLIST_KEY) as? String {
       self.hostAppId = hostAppId
     } else {
@@ -48,53 +30,6 @@ class ShareViewController: SLComposeServiceViewController {
     } else {
       print("Error: \(NO_INFO_PLIST_URL_SCHEME_ERROR)")
     }
-  }
-  
-  func getIsImage(callback: @escaping ((Bool) -> ())) {
-    if let item = extensionContext?.inputItems.first as? NSExtensionItem,
-       let itemProvider = item.attachments?.first {
-        itemProvider.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (data, error) in
-         guard (error == nil) else {
-          callback(false);
-          return
-         }
-        
-         guard let url = data as? URL else {
-          callback(false);
-          return
-         }
-         
-         let rawMimeType = url.extractMimeType() as String;
-        
-         
-         callback(rawMimeType.contains("image") ? true : false);
-       }
-    }
-    
-    callback(false)
-  }
-  
-  func getUrl(callback: @escaping ((URL?) -> ())) {
-    if let item = extensionContext?.inputItems.first as? NSExtensionItem,
-       let itemProvider = item.attachments?.first {
-        itemProvider.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (data, error) in
-         guard (error == nil) else {
-          callback(nil);
-          return
-         }
-        
-         guard let url = data as? URL else {
-          callback(nil);
-          return
-         }
-         
-         let rawMimeType = url.extractMimeType();
-         
-          callback(rawMimeType.contains("image") ? nil : url);
-       }
-    }
-    
-    callback(nil)
   }
 
   override func isContentValid() -> Bool {
@@ -109,7 +44,7 @@ class ShareViewController: SLComposeServiceViewController {
       return
     }
 
-    handlePost(item)
+    handlePost(item, extraData: ["text":textView.text as Any])
   }
 
   override func configurationItems() -> [Any]! {
