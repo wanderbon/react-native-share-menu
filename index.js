@@ -8,16 +8,16 @@ const NEW_SHARE_EVENT_NAME = "NewShareEvent";
 
 export const ShareMenuReactView = {
   dismissExtension(error = null) {
-    NativeModules.ShareMenuReactView.dismissExtension(error);
+    ShareMenu.dismissExtension(error);
   },
   openApp() {
-    NativeModules.ShareMenuReactView.openApp();
+    ShareMenu.openApp();
   },
   continueInApp(extraData = null) {
-    NativeModules.ShareMenuReactView.continueInApp(extraData);
+    ShareMenu.continueInApp(extraData);
   },
   data() {
-    return NativeModules.ShareMenuReactView.data();
+    return ShareMenu.data();
   },
 };
 
@@ -39,4 +39,8 @@ export default {
 
     return subscription;
   },
+  data: () => ShareMenu.data(),
+  close: () => ShareMenu.close(),
+  openURL: (url) => ShareMenu.openURL(url),
+  continueInApp: (data, mimeType, extraData) => ShareMenu.continueInApp(data, mimeType, extraData),
 };
