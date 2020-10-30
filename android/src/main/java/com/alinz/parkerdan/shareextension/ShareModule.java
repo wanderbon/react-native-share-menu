@@ -10,27 +10,17 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ShareModule extends ReactContextBaseJavaModule {
-    // Events
-    final String NEW_SHARE_EVENT = "NewShareEvent";
-
     // Keys
     final String MIME_TYPE_KEY = "mimeType";
     final String DATA_KEY = "data";
@@ -53,6 +43,10 @@ public class ShareModule extends ReactContextBaseJavaModule {
     @Nullable
     private ReadableMap extractShared(Intent intent)  {
         String type = intent.getType();
+        WritableMap data = Arguments.createMap();
+
+        data.putString(MIME_TYPE_KEY, "");
+        data.putString(DATA_KEY, "");
 
         if (type == null) {
             return null;
@@ -60,7 +54,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
         String action = intent.getAction();
 
-        WritableMap data = Arguments.createMap();
+
         data.putString(MIME_TYPE_KEY, type);
 
         if (Intent.ACTION_SEND.equals(action)) {
@@ -86,6 +80,9 @@ public class ShareModule extends ReactContextBaseJavaModule {
             }
         }
 
+        data.putString(MIME_TYPE_KEY, "");
+        data.putString(DATA_KEY, "");
+
         return null;
     }
 
@@ -103,16 +100,6 @@ public class ShareModule extends ReactContextBaseJavaModule {
         ReadableMap shared = extractShared(intent);
         successCallback.invoke(shared);
         clearSharedText();
-    }
-
-    private void dispatchEvent(ReadableMap shared) {
-        if (mReactContext == null || !mReactContext.hasActiveCatalystInstance()) {
-            return;
-        }
-
-        mReactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(NEW_SHARE_EVENT, shared);
     }
 
     public void clearSharedText() {
@@ -147,82 +134,23 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void continueInApp(String data, String mimeType, String extraData) {
+        Activity activity = getCurrentActivity();
         Intent intent = new Intent(mReactContext, mClass);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        WritableMap extraMap = Arguments.createMap();
-        extraMap.putString("text", extraData);
+        intent.putExtra("data", data);
+        intent.putExtra("mimeType", mimeType);
+        intent.putExtra("extraData", extraData);
 
-        WritableMap writableMap = Arguments.createMap();
-
-        writableMap.putString("data", data);
-        writableMap.putString("mimeType", mimeType);
-        writableMap.putMap("extraData", extraMap);
-
-        dispatchEvent(writableMap);
-
-        mReactContext.startActivity(intent);
+        activity.startActivity(intent);
 
         close();
     }
 
     @ReactMethod
     public void data(Promise promise) {
-        promise.resolve(processIntent());
-    }
+        Activity activity = getCurrentActivity();
+        Intent intent = activity.getIntent();
 
-    public WritableMap processIntent() {
-        WritableMap map = Arguments.createMap();
-
-        String value = "";
-        String type = "";
-        String action = "";
-
-        Activity currentActivity = getCurrentActivity();
-
-        if (currentActivity != null) {
-            Intent intent = currentActivity.getIntent();
-            action = intent.getAction();
-            type = intent.getType();
-            if (type == null) {
-                type = "";
-            }
-            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-                value = intent.getStringExtra(Intent.EXTRA_TEXT);
-            }
-            else if (Intent.ACTION_SEND.equals(action) && ("image/*".equals(type) || "image/jpeg".equals(type) || "image/png".equals(type) || "image/jpg".equals(type) ) ) {
-                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                value = "file://" + RealPathUtil.getRealPathFromURI(currentActivity, uri);
-
-            } else {
-                value = "";
-            }
-        } else {
-            value = "";
-            type = "";
-        }
-
-        map.putString("mimeType", type);
-        map.putString("data", value);
-
-        return map;
-    }
-
-    public static String getShareApp(Context context) {
-
-        PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-
-        String value = "";
-
-        for (ApplicationInfo packageInfo : packages) {
-            if(packageInfo.packageName.contains("share")) {
-                value = packageInfo.packageName;
-
-                break;
-            }
-        }
-
-        return value;
+        promise.resolve(extractShared(intent));
     }
 }
