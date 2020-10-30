@@ -42,48 +42,39 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
     @Nullable
     private ReadableMap extractShared(Intent intent)  {
-        String type = intent.getType();
-        WritableMap data = Arguments.createMap();
+        WritableMap map = Arguments.createMap();
 
-        data.putString(MIME_TYPE_KEY, "");
-        data.putString(DATA_KEY, "");
+        String value = "";
+        String type = "";
+        String action = "";
 
-        if (type == null) {
-            return null;
+        Activity currentActivity = getCurrentActivity();
+
+        if (currentActivity != null) {
+            action = intent.getAction();
+            type = intent.getType();
+            if (type == null) {
+                type = "";
+            }
+            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
+                value = intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
+            else if (Intent.ACTION_SEND.equals(action) && ("image/*".equals(type) || "image/jpeg".equals(type) || "image/png".equals(type) || "image/jpg".equals(type) ) ) {
+                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
+
+            } else {
+                value = "";
+            }
+        } else {
+            value = "";
+            type = "";
         }
 
-        String action = intent.getAction();
+        map.putString("mimeType", type);
+        map.putString("data", value);
 
-
-        data.putString(MIME_TYPE_KEY, type);
-
-        if (Intent.ACTION_SEND.equals(action)) {
-            if ("text/plain".equals(type)) {
-                data.putString(DATA_KEY, intent.getStringExtra(Intent.EXTRA_TEXT));
-                return data;
-            }
-
-            Uri fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (fileUri != null) {
-                data.putString(DATA_KEY, fileUri.toString());
-                return data;
-            }
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-            ArrayList<Uri> fileUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (fileUris != null) {
-                WritableArray uriArr = Arguments.createArray();
-                for (Uri uri : fileUris) {
-                    uriArr.pushString(uri.toString());
-                }
-                data.putArray(DATA_KEY, uriArr);
-                return data;
-            }
-        }
-
-        data.putString(MIME_TYPE_KEY, "");
-        data.putString(DATA_KEY, "");
-
-        return null;
+        return map;
     }
 
     @ReactMethod
@@ -136,6 +127,9 @@ public class ShareModule extends ReactContextBaseJavaModule {
     public void continueInApp(String data, String mimeType, String extraData) {
         Activity activity = getCurrentActivity();
         Intent intent = new Intent(mReactContext, mClass);
+
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         intent.putExtra("data", data);
         intent.putExtra("mimeType", mimeType);
