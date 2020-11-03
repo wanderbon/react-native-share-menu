@@ -43,7 +43,7 @@ class ShareViewController: SLComposeServiceViewController {
       cancelRequest()
       return
     }
-
+    
     handlePost(item, extraData: ["text":textView.text as Any])
   }
 
@@ -146,7 +146,7 @@ class ShareViewController: SLComposeServiceViewController {
       }
       
       let rawMimeType = url.extractMimeType();
-      let mimeType = rawMimeType.isEmpty ? "text/plain" : rawMimeType;
+      let mimeType = rawMimeType.isEmpty ? "text/plain" : rawMimeType
       
       userDefaults.set([DATA_KEY: url.absoluteString, MIME_TYPE_KEY: mimeType],
                        forKey: USER_DEFAULTS_KEY)
@@ -162,10 +162,29 @@ class ShareViewController: SLComposeServiceViewController {
         self.exit(withError: error.debugDescription)
         return
       }
-      guard let url = data as? URL else {
+      
+      let url:URL
+      
+      if let fileUrl = data as? URL {
+        url = fileUrl;
+      } else if let fileUrl = data as? UIImage {
+        guard let imageUrl = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("TempImage.png") else {
+            self.exit(withError: COULD_NOT_FIND_IMG_ERROR)
+            return
+        }
+        
+        url = imageUrl
+        
+        do {
+          try fileUrl.pngData()?.write(to: imageUrl)
+        } catch {
+          self.exit(withError: COULD_NOT_FIND_IMG_ERROR)
+        }
+      } else {
         self.exit(withError: COULD_NOT_FIND_IMG_ERROR)
         return
       }
+      
       guard let hostAppId = self.hostAppId else {
         self.exit(withError: NO_INFO_PLIST_INDENTIFIER_ERROR)
         return
@@ -245,7 +264,7 @@ class ShareViewController: SLComposeServiceViewController {
   }
   
   func cancelRequest() {
-    extensionContext!.cancelRequest(withError: NSError())
+    extensionContext!.cancelRequest(withError: NSError(domain: "domein", code: -1, userInfo: nil))
   }
 
 }
