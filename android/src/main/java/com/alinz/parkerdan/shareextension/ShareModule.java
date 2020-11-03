@@ -14,10 +14,13 @@ import com.facebook.react.bridge.WritableMap;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class ShareModule extends ReactContextBaseJavaModule {
@@ -61,8 +64,8 @@ public class ShareModule extends ReactContextBaseJavaModule {
             }
             else if (Intent.ACTION_SEND.equals(action) && ("image/*".equals(type) || "image/jpeg".equals(type) || "image/png".equals(type) || "image/jpg".equals(type) ) ) {
                 Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
 
+                value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
             } else {
                 value = "";
             }
