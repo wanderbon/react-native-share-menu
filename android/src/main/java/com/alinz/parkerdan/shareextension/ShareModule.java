@@ -8,26 +8,16 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-
-import java.io.File;
-import java.util.ArrayList;
 
 public class ShareModule extends ReactContextBaseJavaModule {
-    // Keys
-    final String MIME_TYPE_KEY = "mimeType";
-    final String DATA_KEY = "data";
-
     private ReactContext mReactContext;
     private Class mClass;
 
@@ -56,6 +46,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
         if (currentActivity != null) {
             action = intent.getAction();
             type = intent.getType();
+
             if (type == null) {
                 type = "";
             }
@@ -63,9 +54,31 @@ public class ShareModule extends ReactContextBaseJavaModule {
                 value = intent.getStringExtra(Intent.EXTRA_TEXT);
             }
             else if (Intent.ACTION_SEND.equals(action) && ("image/*".equals(type) || "image/jpeg".equals(type) || "image/png".equals(type) || "image/jpg".equals(type) ) ) {
-                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                Uri uri = intent.getExtras().getParcelable(Intent.EXTRA_STREAM);
 
-                value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
+                if(uri == null) {
+                  String extraString = (String) intent.getExtras().get(Intent.EXTRA_STREAM);
+
+                  if(extraString == "" || extraString == null) {
+                      close();
+                  }
+
+                  uri = Uri.parse(extraString);
+                }
+
+                if(uri == null) {
+                    close();
+                }
+
+                String path = uri.toString();
+
+                if(path.contains("https://")) {
+                    value = path;
+                } else if(path.contains("http://")) {
+                    value = path.replace("http://", "https://");
+                } else {
+                    value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
+                }
             } else {
                 value = "";
             }
