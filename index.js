@@ -40,7 +40,5 @@ export default {
     return subscription;
   },
   data: () => ShareMenu.data(),
-  close: () => ShareMenu.close(),
   openURL: (url) => ShareMenu.openURL(url),
-  continueInApp: (data, mimeType, extraData) => ShareMenu.continueInApp(data, mimeType, extraData),
 };

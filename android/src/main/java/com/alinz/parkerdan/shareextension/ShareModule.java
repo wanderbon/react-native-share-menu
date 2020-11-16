@@ -59,25 +59,24 @@ public class ShareModule extends ReactContextBaseJavaModule {
                 if(uri == null) {
                   String extraString = (String) intent.getExtras().get(Intent.EXTRA_STREAM);
 
-                  if(extraString == "" || extraString == null) {
-                      close();
+                  if(extraString != "" && extraString != null) {
+                      uri = Uri.parse(extraString);
                   }
-
-                  uri = Uri.parse(extraString);
                 }
 
-                if(uri == null) {
-                    close();
-                }
+                if(uri != null) {
+                    String path = uri.toString();
 
-                String path = uri.toString();
-
-                if(path.contains("https://")) {
-                    value = path;
-                } else if(path.contains("http://")) {
-                    value = path.replace("http://", "https://");
+                    if(path.contains("https://")) {
+                        value = path;
+                    } else if(path.contains("http://")) {
+                        value = path.replace("http://", "https://");
+                    } else {
+                        value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
+                    }
                 } else {
-                    value = "file://" + RealPathUtil.getFilePathFromURI(mReactContext, uri);
+                    value = "";
+                    type = "";
                 }
             } else {
                 value = "";
@@ -127,33 +126,6 @@ public class ShareModule extends ReactContextBaseJavaModule {
         }
 
         intent.removeExtra(Intent.EXTRA_STREAM);
-    }
-
-
-    @ReactMethod
-    public void close() {
-        Activity activity = getCurrentActivity();
-
-        if(activity != null && activity.toString().contains("ShareActivity")) {
-            activity.finish();
-        }
-    }
-
-    @ReactMethod
-    public void continueInApp(String data, String mimeType, String extraData) {
-        Activity activity = getCurrentActivity();
-        Intent intent = new Intent(mReactContext, mClass);
-
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-        intent.putExtra("data", data);
-        intent.putExtra("mimeType", mimeType);
-        intent.putExtra("extraData", extraData);
-
-        activity.startActivity(intent);
-
-        close();
     }
 
     @ReactMethod

@@ -1,11 +1,36 @@
 {
-  "name": "react-native-share-menu",
-  "description": "Add your app as a target for sharing from other apps and write iOS Share Extensions in React Native.",
-  "version": "5.0.2",
-  "repository": {
+  "_from": "git+https://github.com/wanderbon/react-native-share-menu.git",
+  "_id": "react-native-share-menu@5.0.2",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/react-native-share-menu",
+  "_phantomChildren": {},
+  "_requested": {
     "type": "git",
-    "url": "git+https://github.com/meedan/react-native-share-menu.git"
+    "raw": "https://github.com/wanderbon/react-native-share-menu.git",
+    "rawSpec": "https://github.com/wanderbon/react-native-share-menu.git",
+    "saveSpec": "git+https://github.com/wanderbon/react-native-share-menu.git",
+    "fetchSpec": "https://github.com/wanderbon/react-native-share-menu.git",
+    "gitCommittish": null
   },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "git+https://github.com/wanderbon/react-native-share-menu.git#8b1b5ac1d3cea6c153e0ea33e1f34affb2b455b6",
+  "_spec": "https://github.com/wanderbon/react-native-share-menu.git",
+  "_where": "/Users/e.kozhich/Desktop/LiveJournal",
+  "author": {
+    "name": "Meedan",
+    "email": "hello@meedan.com"
+  },
+  "bugs": {
+    "url": "https://github.com/meedan/react-native-share-menu/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Add your app as a target for sharing from other apps and write iOS Share Extensions in React Native.",
+  "homepage": "https://github.com/meedan/react-native-share-menu",
   "keywords": [
     "react-component",
     "react-native",
@@ -15,11 +40,11 @@
     "share-extension",
     "custom-view"
   ],
-  "author": {
-    "name": "Meedan",
-    "email": "hello@meedan.com"
-  },
-  "homepage": "https://github.com/meedan/react-native-share-menu",
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "name": "react-native-share-menu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meedan/react-native-share-menu.git"
+  },
+  "version": "5.0.2"
 }

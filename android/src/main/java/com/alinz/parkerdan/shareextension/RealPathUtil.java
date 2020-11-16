@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.facebook.react.bridge.ReactContext;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -15,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class RealPathUtil {
-    public static String getFilePathFromURI(ReactContext context, Uri contentUri) {
+    public static String getFilePathFromURI(Context context, Uri contentUri) {
         String fileName = getFileName(contentUri);
         if (!TextUtils.isEmpty(fileName)) {
             File copyFile = new File(context.getExternalCacheDir() + File.separator + fileName);
